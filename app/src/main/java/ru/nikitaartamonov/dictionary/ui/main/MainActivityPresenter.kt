@@ -2,12 +2,12 @@ package ru.nikitaartamonov.dictionary.ui.main
 
 import android.util.Log
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import io.reactivex.rxjava3.schedulers.Schedulers
 import ru.nikitaartamonov.dictionary.data.di.DiStorage
 
 class MainActivityPresenter : MainContract.Presenter {
 
     private var view: MainContract.View? = null
+    private val skyEngRepo = DiStorage.getSkyEngRepo()
 
     override fun attach(view: MainContract.View) {
         this.view = view
@@ -26,12 +26,12 @@ class MainActivityPresenter : MainContract.Presenter {
     }
 
     private fun searchWord(word: String) {
-        DiStorage.skyEndApi.search(word).subscribeOn(Schedulers.io()).subscribeBy(
+        skyEngRepo.getMeaning(word).subscribeBy(
             onError = {
-                view?.showError(it.message.toString())
+                view?.showError(it.message ?: "Something wrong, try later")
             },
-            onSuccess = {
-                Log.i("@@@", it.toString())
+            onNext = {
+                Log.i("@@@", it.meaning)
             }
         )
     }
