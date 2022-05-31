@@ -1,8 +1,9 @@
 package ru.nikitaartamonov.dictionary.ui.main
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import ru.nikitaartamonov.dictionary.data.DiStorage
+import ru.nikitaartamonov.dictionary.data.di.DiStorage
 import ru.nikitaartamonov.dictionary.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(), MainContract.View {
@@ -14,6 +15,17 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         presenter.attach(this)
+        initViews()
+    }
+
+    private fun initViews() {
+        binding.addButton.setOnClickListener {
+            presenter.addWord(binding.searchEditText.text.toString())
+        }
+    }
+
+    override fun showError(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroy() {

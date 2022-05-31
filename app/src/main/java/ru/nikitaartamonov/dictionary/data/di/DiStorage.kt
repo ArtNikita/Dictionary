@@ -1,4 +1,4 @@
-package ru.nikitaartamonov.dictionary.data
+package ru.nikitaartamonov.dictionary.data.di
 
 import ru.nikitaartamonov.dictionary.ui.main.MainActivityPresenter
 import ru.nikitaartamonov.dictionary.ui.main.MainContract
