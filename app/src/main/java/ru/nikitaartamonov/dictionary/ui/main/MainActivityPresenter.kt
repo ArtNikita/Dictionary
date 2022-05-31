@@ -1,5 +1,10 @@
 package ru.nikitaartamonov.dictionary.ui.main
 
+import android.util.Log
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
+import ru.nikitaartamonov.dictionary.data.di.DiStorage
+
 class MainActivityPresenter : MainContract.Presenter {
 
     private var view: MainContract.View? = null
@@ -13,11 +18,22 @@ class MainActivityPresenter : MainContract.Presenter {
     }
 
     override fun addWord(word: String) {
-        if (!isActuallyWord(word)){
+        if (!isActuallyWord(word)) {
             view?.showError("You should enter word!") //yeah, i know that i shouldn't do this way
         } else {
-            //todo search word
+            searchWord(word)
         }
+    }
+
+    private fun searchWord(word: String) {
+        DiStorage.skyEndApi.search(word).subscribeOn(Schedulers.io()).subscribeBy(
+            onError = {
+                view?.showError(it.message.toString())
+            },
+            onSuccess = {
+                Log.i("@@@", it.toString())
+            }
+        )
     }
 
     private fun isActuallyWord(word: String): Boolean {
