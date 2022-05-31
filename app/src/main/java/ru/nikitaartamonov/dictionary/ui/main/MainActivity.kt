@@ -28,6 +28,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
+    override fun updateList() {
+        //todo
+    }
+
     override fun onDestroy() {
         presenter.detach()
         if (isFinishing) DiStorage.clearMainActivityPresenter()

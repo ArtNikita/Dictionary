@@ -5,6 +5,7 @@ interface MainContract {
     interface View {
 
         fun showError(message: String)
+        fun updateList()
     }
 
     interface Presenter {
