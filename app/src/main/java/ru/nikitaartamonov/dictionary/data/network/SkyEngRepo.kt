@@ -23,14 +23,9 @@ class SkyEngRepo(private val skyEngApi: SkyEngApi) {
                     val meaning = meaningsList[0].meanings[0].translation.text
                     wordMeaning.onNext(WordMeaning(meaning))
                     wordMeaning.onComplete()
-                    saveWordToDb(word, meaning)
                 }
             }
         )
         return wordMeaning
-    }
-
-    private fun saveWordToDb(word: String, meaning: String) {
-        //todo save to db
     }
 }

@@ -16,6 +16,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         setContentView(binding.root)
         presenter.attach(this)
         initViews()
+        updateList()
     }
 
     private fun initViews() {

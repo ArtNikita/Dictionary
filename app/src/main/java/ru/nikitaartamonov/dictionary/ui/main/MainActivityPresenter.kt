@@ -1,8 +1,10 @@
 package ru.nikitaartamonov.dictionary.ui.main
 
-import android.util.Log
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
 import ru.nikitaartamonov.dictionary.data.di.DiStorage
+import ru.nikitaartamonov.dictionary.data.storage.PairOfWords
 
 class MainActivityPresenter : MainContract.Presenter {
 
@@ -28,15 +30,25 @@ class MainActivityPresenter : MainContract.Presenter {
     private fun searchWord(word: String) {
         skyEngRepo.getMeaning(word).subscribeBy(
             onError = {
-                view?.showError(it.message ?: "Something wrong, try later")
+                view?.showError(it.message ?: "Something's wrong, try later")
             },
             onNext = {
-                Log.i("@@@", it.meaning)
+                saveWordToDb(word, it.meaning)
             }
         )
     }
 
     private fun isActuallyWord(word: String): Boolean {
         return word.isNotEmpty() && !word.contains(' ') && word.all { it.isLetter() }
+    }
+
+    private fun saveWordToDb(word: String, meaning: String) {
+        DiStorage.getPairOfWordsDao().get(word).subscribeOn(Schedulers.io()).subscribeBy(
+            onComplete = {
+                DiStorage.getPairOfWordsDao().add(PairOfWords(word, meaning))
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeBy { view?.updateList() }
+            }
+        )
     }
 }
