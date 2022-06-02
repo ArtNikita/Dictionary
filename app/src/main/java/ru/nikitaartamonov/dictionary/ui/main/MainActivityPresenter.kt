@@ -21,7 +21,7 @@ class MainActivityPresenter : MainContract.Presenter {
 
     override fun addWord(word: String) {
         if (!isActuallyWord(word)) {
-            view?.showError("You should enter word!") //yeah, i know that i shouldn't do this way
+            view?.showError("You should enter word!")
         } else {
             searchWord(word)
         }
@@ -38,9 +38,7 @@ class MainActivityPresenter : MainContract.Presenter {
         )
     }
 
-    private fun isActuallyWord(word: String): Boolean {
-        return word.isNotEmpty() && !word.contains(' ') && word.all { it.isLetter() }
-    }
+    private fun isActuallyWord(word: String): Boolean = word.isNotEmpty()
 
     private fun saveWordToDb(word: String, meaning: String) {
         DiStorage.getPairOfWordsDao().get(word).subscribeOn(Schedulers.io()).subscribeBy(

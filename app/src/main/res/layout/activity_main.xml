@@ -11,6 +11,7 @@
         android:id="@+id/search_edit_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:digits="@string/eng_alphabet"
         android:gravity="center"
         android:hint="@string/search_edit_text_hint"
         android:importantForAutofill="no"
