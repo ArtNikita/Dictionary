@@ -3,4 +3,6 @@
     <string name="search_edit_text_hint">Enter word you want to find here!</string>
     <string name="add_word">Add word</string>
     <string name="eng_alphabet" translatable="false">abcdefghijklmnopqrstuvwxyz</string>
+    <string name="not_a_word_error_msg">You should enter word!</string>
+    <string name="unknown_error_msg">Something\'s wrong, try later</string>
 </resources>

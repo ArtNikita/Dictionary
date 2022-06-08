@@ -5,6 +5,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import ru.nikitaartamonov.dictionary.data.di.DiStorage
 import ru.nikitaartamonov.dictionary.data.storage.PairOfWords
+import ru.nikitaartamonov.dictionary.domain.Error
 
 class MainActivityPresenter : MainContract.Presenter {
 
@@ -21,7 +22,7 @@ class MainActivityPresenter : MainContract.Presenter {
 
     override fun addWord(word: String) {
         if (!isActuallyWord(word)) {
-            view?.showError("You should enter word!")
+            view?.showError(Error.NOT_A_WORD)
         } else {
             searchWord(word)
         }
@@ -29,8 +30,8 @@ class MainActivityPresenter : MainContract.Presenter {
 
     private fun searchWord(word: String) {
         skyEngRepo.getMeaning(word).subscribeBy(
-            onError = {
-                view?.showError(it.message ?: "Something's wrong, try later")
+            onError = { error ->
+                view?.showError(Error.CUSTOM.also { it.msg = error.message })
             },
             onNext = {
                 saveWordToDb(word, it.meaning)

@@ -1,10 +1,12 @@
 package ru.nikitaartamonov.dictionary.ui.main
 
+import ru.nikitaartamonov.dictionary.domain.Error
+
 interface MainContract {
 
     interface View {
 
-        fun showError(message: String)
+        fun showError(error: Error)
         fun updateList()
     }
 
