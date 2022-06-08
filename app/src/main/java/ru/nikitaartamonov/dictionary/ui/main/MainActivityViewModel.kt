@@ -6,14 +6,17 @@ import androidx.lifecycle.ViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
-import ru.nikitaartamonov.dictionary.data.di.DiStorage
+import ru.nikitaartamonov.dictionary.data.network.SkyEngRepo
 import ru.nikitaartamonov.dictionary.data.storage.PairOfWords
+import ru.nikitaartamonov.dictionary.data.storage.PairOfWordsDao
 import ru.nikitaartamonov.dictionary.domain.Error
 import ru.nikitaartamonov.dictionary.domain.Event
+import javax.inject.Inject
 
-class MainActivityViewModel : ViewModel(), MainContract.ViewModel {
-
-    private val skyEngRepo = DiStorage.getSkyEngRepo()
+class MainActivityViewModel @Inject constructor(
+    private val skyEngRepo: SkyEngRepo,
+    private val pairOfWordsDao: PairOfWordsDao
+) : ViewModel(), MainContract.ViewModel {
 
     override val showErrorLiveData: LiveData<Event<Error>> = MutableLiveData()
     override val updateListLiveData: LiveData<Event<Unit>> = MutableLiveData()
@@ -40,9 +43,9 @@ class MainActivityViewModel : ViewModel(), MainContract.ViewModel {
     private fun isActuallyWord(word: String): Boolean = word.isNotEmpty()
 
     private fun saveWordToDb(word: String, meaning: String) {
-        DiStorage.getPairOfWordsDao().get(word).subscribeOn(Schedulers.io()).subscribeBy(
+        pairOfWordsDao.get(word).subscribeOn(Schedulers.io()).subscribeBy(
             onComplete = {
-                DiStorage.getPairOfWordsDao().add(PairOfWords(word, meaning))
+                pairOfWordsDao.add(PairOfWords(word, meaning))
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeBy { updateListLiveData.postValue(Event(Unit)) }
             }

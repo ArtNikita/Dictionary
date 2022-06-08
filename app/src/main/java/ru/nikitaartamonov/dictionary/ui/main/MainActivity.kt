@@ -9,21 +9,28 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import ru.nikitaartamonov.dictionary.R
-import ru.nikitaartamonov.dictionary.data.di.DiStorage
+import ru.nikitaartamonov.dictionary.app
+import ru.nikitaartamonov.dictionary.data.storage.PairOfWordsDao
 import ru.nikitaartamonov.dictionary.databinding.ActivityMainBinding
 import ru.nikitaartamonov.dictionary.domain.Error
 import ru.nikitaartamonov.dictionary.domain.MainRvPairOfWordsEntity
+import ru.nikitaartamonov.dictionary.viewModelFactory
+import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
-    private val viewModel: MainContract.ViewModel by viewModels<MainActivityViewModel>()
+    private val viewModel: MainContract.ViewModel by viewModels<MainActivityViewModel> { viewModelFactory }
 
     private val adapter = MainRecyclerViewAdapter()
+
+    @Inject
+    lateinit var pairOfWordsDao: PairOfWordsDao
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        app.appComponent.inject(this)
         initViews()
         initRv()
         initViewModel()
@@ -65,7 +72,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateList() {
-        DiStorage.getPairOfWordsDao().getAll()
+        pairOfWordsDao.getAll()
             .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
             .map { list ->
                 list.map { MainRvPairOfWordsEntity(it.word, it.meaning) }

@@ -5,8 +5,9 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.subjects.PublishSubject
 import ru.nikitaartamonov.dictionary.domain.WordMeaning
+import javax.inject.Inject
 
-class SkyEngRepo(private val skyEngApi: SkyEngApi) {
+class SkyEngRepo @Inject constructor(private val skyEngApi: SkyEngApi) {
 
     fun getMeaning(word: String): Observable<WordMeaning> {
         val wordMeaning = PublishSubject.create<WordMeaning>()
