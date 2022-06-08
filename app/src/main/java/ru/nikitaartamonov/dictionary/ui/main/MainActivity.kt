@@ -2,6 +2,7 @@ package ru.nikitaartamonov.dictionary.ui.main
 
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -13,25 +14,25 @@ import ru.nikitaartamonov.dictionary.databinding.ActivityMainBinding
 import ru.nikitaartamonov.dictionary.domain.Error
 import ru.nikitaartamonov.dictionary.domain.MainRvPairOfWordsEntity
 
-class MainActivity : AppCompatActivity(), MainContract.View {
+class MainActivity : AppCompatActivity() {
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
-    private val presenter: MainContract.Presenter = DiStorage.getMainActivityPresenter()
+    private val viewModel: MainContract.ViewModel by viewModels<MainActivityViewModel>()
 
     private val adapter = MainRecyclerViewAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        presenter.attach(this)
         initViews()
         initRv()
+        initViewModel()
         updateList()
     }
 
     private fun initViews() {
         binding.addButton.setOnClickListener {
-            presenter.addWord(binding.searchEditText.text.toString())
+            viewModel.addWord(binding.searchEditText.text.toString())
         }
     }
 
@@ -42,7 +43,16 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
     }
 
-    override fun showError(error: Error) {
+    private fun initViewModel() {
+        viewModel.showErrorLiveData.observe(this) { event ->
+            event.getContentIfNotHandled()?.let { showError(it) }
+        }
+        viewModel.updateListLiveData.observe(this) { event ->
+            event.getContentIfNotHandled()?.let { updateList() }
+        }
+    }
+
+    private fun showError(error: Error) {
         val errorMsg: String = when (error) {
             Error.NOT_A_WORD -> {
                 getString(R.string.not_a_word_error_msg)
@@ -54,7 +64,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show()
     }
 
-    override fun updateList() {
+    private fun updateList() {
         DiStorage.getPairOfWordsDao().getAll()
             .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
             .map { list ->
@@ -63,11 +73,5 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             .subscribeBy {
                 adapter.updateItems(it)
             }
-    }
-
-    override fun onDestroy() {
-        presenter.detach()
-        if (isFinishing) DiStorage.clearMainActivityPresenter()
-        super.onDestroy()
     }
 }

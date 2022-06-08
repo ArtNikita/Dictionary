@@ -1,28 +1,26 @@
 package ru.nikitaartamonov.dictionary.ui.main
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import ru.nikitaartamonov.dictionary.data.di.DiStorage
 import ru.nikitaartamonov.dictionary.data.storage.PairOfWords
 import ru.nikitaartamonov.dictionary.domain.Error
+import ru.nikitaartamonov.dictionary.domain.Event
 
-class MainActivityPresenter : MainContract.Presenter {
+class MainActivityViewModel : ViewModel(), MainContract.ViewModel {
 
-    private var view: MainContract.View? = null
     private val skyEngRepo = DiStorage.getSkyEngRepo()
 
-    override fun attach(view: MainContract.View) {
-        this.view = view
-    }
-
-    override fun detach() {
-        view = null
-    }
+    override val showErrorLiveData: LiveData<Event<Error>> = MutableLiveData()
+    override val updateListLiveData: LiveData<Event<Unit>> = MutableLiveData()
 
     override fun addWord(word: String) {
         if (!isActuallyWord(word)) {
-            view?.showError(Error.NOT_A_WORD)
+            showErrorLiveData.postValue(Event(Error.NOT_A_WORD))
         } else {
             searchWord(word)
         }
@@ -31,7 +29,7 @@ class MainActivityPresenter : MainContract.Presenter {
     private fun searchWord(word: String) {
         skyEngRepo.getMeaning(word).subscribeBy(
             onError = { error ->
-                view?.showError(Error.CUSTOM.also { it.msg = error.message })
+                showErrorLiveData.postValue(Event(Error.CUSTOM.also { it.msg = error.message }))
             },
             onNext = {
                 saveWordToDb(word, it.meaning)
@@ -46,8 +44,12 @@ class MainActivityPresenter : MainContract.Presenter {
             onComplete = {
                 DiStorage.getPairOfWordsDao().add(PairOfWords(word, meaning))
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeBy { view?.updateList() }
+                    .subscribeBy { updateListLiveData.postValue(Event(Unit)) }
             }
         )
+    }
+
+    private fun <T> LiveData<T>.postValue(value: T) {
+        (this as MutableLiveData).postValue(value)
     }
 }

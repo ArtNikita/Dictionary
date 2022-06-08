@@ -11,22 +11,10 @@ import ru.nikitaartamonov.dictionary.data.network.SkyEngApi
 import ru.nikitaartamonov.dictionary.data.network.SkyEngRepo
 import ru.nikitaartamonov.dictionary.data.storage.PairOfWordsDao
 import ru.nikitaartamonov.dictionary.data.storage.PairOfWordsDataBase
-import ru.nikitaartamonov.dictionary.ui.main.MainActivityPresenter
-import ru.nikitaartamonov.dictionary.ui.main.MainContract
 
 object DiStorage {
 
     fun getSkyEngRepo(): SkyEngRepo = SkyEngRepo(skyEngApi)
-
-    fun getMainActivityPresenter(): MainContract.Presenter {
-        return mainActivityPresenter ?: MainActivityPresenter().apply {
-            mainActivityPresenter = this
-        }
-    }
-
-    fun clearMainActivityPresenter() {
-        mainActivityPresenter = null
-    }
 
     fun getPairOfWordsDao(): PairOfWordsDao = dataBase.pairOfWordsDao
 
@@ -46,6 +34,4 @@ object DiStorage {
             .build()
         retrofit.create(SkyEngApi::class.java)
     }
-
-    private var mainActivityPresenter: MainContract.Presenter? = null
 }
